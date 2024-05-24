@@ -3,6 +3,7 @@ package ports
 import (
 	"github.com/bruceneco/links-r-us/internal/application/core/domain"
 	"github.com/google/uuid"
+	"golang.org/x/xerrors"
 	"time"
 )
 
@@ -38,3 +39,12 @@ type EdgeIterator interface {
 	// Edge returns the currently fetched domain.Edge struct.
 	Edge() *domain.Edge
 }
+
+var (
+	// GraphErrNotFound is returned when a link or edge lookup fails.
+	GraphErrNotFound = xerrors.New("not found")
+
+	// GraphErrUnknownEdgeLinks is returned when attempting to create an edge
+	// with an invalid source and/or destination ID
+	GraphErrUnknownEdgeLinks = xerrors.New("unknown source and/or destination for edge")
+)
