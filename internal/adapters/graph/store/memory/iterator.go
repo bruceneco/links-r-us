@@ -19,7 +19,7 @@ func (i *linkIterator) Next() bool {
 	return true
 }
 
-// Error implements graph.LinkIterator.
+// Error implements ports.LinkIterator.
 func (i *linkIterator) Error() error {
 	return nil
 }
