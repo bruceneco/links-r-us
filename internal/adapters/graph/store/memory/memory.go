@@ -137,7 +137,7 @@ func (s *InMemoryGraph) UpsertEdge(edge *domain.Edge) error {
 
 	// Append the edge ID to the list of edges originating from the
 	// edge's source link.
-	s.linkEdgeMap[edge.Src] = append(s.linkEdgeMap[edge.Src], eCopy.ID)
+	s.linkEdgeMap[eCopy.Src] = append(s.linkEdgeMap[eCopy.Src], eCopy.ID)
 	return nil
 }
 
