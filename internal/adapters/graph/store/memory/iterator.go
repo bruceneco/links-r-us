@@ -34,8 +34,8 @@ func (i *linkIterator) Link() *domain.Link {
 	// The link pointer contents may be overwritten by a graph update; to
 	// avoid data-races we acquire the read lock first and clone the link
 	i.s.mu.RLock()
+	defer i.s.mu.RUnlock()
 	link := *i.links[i.curIndex-1]
-	i.s.mu.RUnlock()
 	return &link
 }
 
