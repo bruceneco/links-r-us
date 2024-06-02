@@ -91,7 +91,9 @@ func (s *InMemoryGraph) Links(fromID, toID uuid.UUID, retrievedBefore time.Time)
 	var list []*domain.Link
 	for linkID, link := range s.links {
 		if id := linkID.String(); id >= from && id < to && link.RetrievedAt.Before(retrievedBefore) {
-			list = append(list, link)
+			linkCopy := new(domain.Link)
+			*linkCopy = *link
+			list = append(list, linkCopy)
 		}
 	}
 	s.mu.RUnlock()
