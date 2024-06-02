@@ -156,7 +156,8 @@ func (s *InMemoryGraph) Edges(fromID, toID uuid.UUID, updatedBefore time.Time) (
 
 		for _, edgeID := range s.linkEdgeMap[linkID] {
 			if edge := s.edges[edgeID]; edge.UpdatedAt.Before(updatedBefore) {
-				list = append(list, edge)
+				edgeCopy := *edge
+				list = append(list, &edgeCopy)
 			}
 		}
 	}
