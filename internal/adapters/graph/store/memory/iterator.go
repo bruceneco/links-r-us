@@ -34,10 +34,9 @@ func (i *linkIterator) Link() *domain.Link {
 	// The link pointer contents may be overwritten by a graph update; to
 	// avoid data-races we acquire the read lock first and clone the link
 	i.s.mu.RLock()
-	link := new(domain.Link)
-	*link = *i.links[i.curIndex-1]
+	link := *i.links[i.curIndex-1]
 	i.s.mu.RUnlock()
-	return link
+	return &link
 }
 
 // edgeIterator is a graph.EdgeIterator implementation for the in-memory graph.
@@ -76,4 +75,6 @@ func (i *edgeIterator) Edge() *domain.Edge {
 	*edge = *i.edges[i.curIndex-1]
 	i.s.mu.RUnlock()
 	return edge
+	edge := *i.edges[i.curIndex-1]
+	return &edge
 }
