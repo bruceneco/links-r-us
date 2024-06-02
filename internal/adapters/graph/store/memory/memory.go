@@ -115,7 +115,7 @@ func (s *InMemoryGraph) UpsertEdge(edge *domain.Edge) error {
 	// Scan edge list from source
 	for _, edgeID := range s.linkEdgeMap[edge.Src] {
 		existingEdge := s.edges[edgeID]
-		if existingEdge.Src == edge.Src && existingEdge.Dst == edge.Dst {
+		if existingEdge.Dst == edge.Dst {
 			existingEdge.UpdatedAt = time.Now()
 			*edge = *existingEdge
 			return nil
