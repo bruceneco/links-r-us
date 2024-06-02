@@ -88,6 +88,7 @@ func (s *InMemoryGraph) Links(fromID, toID uuid.UUID, retrievedBefore time.Time)
 	from, to := fromID.String(), toID.String()
 
 	s.mu.RLock()
+	defer s.mu.RUnlock()
 	var list []*domain.Link
 	for linkID, link := range s.links {
 		if id := linkID.String(); id >= from && id < to && link.RetrievedAt.Before(retrievedBefore) {
@@ -96,7 +97,6 @@ func (s *InMemoryGraph) Links(fromID, toID uuid.UUID, retrievedBefore time.Time)
 			list = append(list, linkCopy)
 		}
 	}
-	s.mu.RUnlock()
 
 	return &linkIterator{s: s, links: list}, nil
 }
@@ -148,6 +148,7 @@ func (s *InMemoryGraph) Edges(fromID, toID uuid.UUID, updatedBefore time.Time) (
 	from, to := fromID.String(), toID.String()
 
 	s.mu.RLock()
+	defer s.mu.RUnlock()
 	var list []*domain.Edge
 	for linkID := range s.links {
 		if id := linkID.String(); id < from || id >= to {
@@ -161,7 +162,6 @@ func (s *InMemoryGraph) Edges(fromID, toID uuid.UUID, updatedBefore time.Time) (
 			}
 		}
 	}
-	s.mu.RUnlock()
 
 	return &edgeIterator{s: s, edges: list}, nil
 }
