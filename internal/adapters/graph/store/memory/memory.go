@@ -10,9 +10,6 @@ import (
 	"golang.org/x/xerrors"
 )
 
-// Compile-time check for ensuring InMemoryGraph implements Graph.
-var _ ports.Graph = (*InMemoryGraph)(nil)
-
 // edgeList contains the slice of edge UUIDs that originate from a link in the graph.
 type edgeList []uuid.UUID
 
@@ -29,7 +26,7 @@ type InMemoryGraph struct {
 }
 
 // NewInMemoryGraph creates a new in-memory link graph.
-func NewInMemoryGraph() *InMemoryGraph {
+func NewInMemoryGraph() ports.Graph {
 	return &InMemoryGraph{
 		links:        make(map[uuid.UUID]*domain.Link),
 		edges:        make(map[uuid.UUID]*domain.Edge),
