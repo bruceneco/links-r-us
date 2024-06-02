@@ -71,10 +71,7 @@ func (i *edgeIterator) Edge() *domain.Edge {
 	// The edge pointer contents may be overwritten by a graph update; to
 	// avoid data-races we acquire the read lock first and clone the edge
 	i.s.mu.RLock()
-	edge := new(domain.Edge)
-	*edge = *i.edges[i.curIndex-1]
-	i.s.mu.RUnlock()
-	return edge
+	defer i.s.mu.RUnlock()
 	edge := *i.edges[i.curIndex-1]
 	return &edge
 }
