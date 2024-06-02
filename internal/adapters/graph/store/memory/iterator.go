@@ -2,7 +2,7 @@ package memory
 
 import "github.com/bruceneco/links-r-us/internal/application/core/domain"
 
-// linkIterator is a graph.LinkIterator implementation for the in-memory graph.
+// linkIterator is a ports.LinkIterator implementation for the in-memory graph.
 type linkIterator struct {
 	s *InMemoryGraph
 
@@ -10,7 +10,7 @@ type linkIterator struct {
 	curIndex int
 }
 
-// Next implements graph.LinkIterator.
+// Next implements ports.LinkIterator.
 func (i *linkIterator) Next() bool {
 	if i.curIndex >= len(i.links) {
 		return false
@@ -24,12 +24,12 @@ func (i *linkIterator) Error() error {
 	return nil
 }
 
-// Close implements graph.LinkIterator.
+// Close implements ports.LinkIterator.
 func (i *linkIterator) Close() error {
 	return nil
 }
 
-// Link implements graph.LinkIterator.
+// Link implements ports.LinkIterator.
 func (i *linkIterator) Link() *domain.Link {
 	// The link pointer contents may be overwritten by a graph update; to
 	// avoid data-races we acquire the read lock first and clone the link
@@ -39,7 +39,7 @@ func (i *linkIterator) Link() *domain.Link {
 	return &link
 }
 
-// edgeIterator is a graph.EdgeIterator implementation for the in-memory graph.
+// edgeIterator is a ports.EdgeIterator implementation for the in-memory graph.
 type edgeIterator struct {
 	s *InMemoryGraph
 
@@ -47,7 +47,7 @@ type edgeIterator struct {
 	curIndex int
 }
 
-// Next implements graph.LinkIterator.
+// Next implements ports.EdgeIterator.
 func (i *edgeIterator) Next() bool {
 	if i.curIndex >= len(i.edges) {
 		return false
@@ -56,17 +56,17 @@ func (i *edgeIterator) Next() bool {
 	return true
 }
 
-// Error implements graph.LinkIterator.
+// Error implements graph.EdgeIterator.
 func (i *edgeIterator) Error() error {
 	return nil
 }
 
-// Close implements graph.LinkIterator.
+// Close implements graph.EdgeIterator.
 func (i *edgeIterator) Close() error {
 	return nil
 }
 
-// Link implements graph.LinkIterator.
+// Edge implements graph.EdgeIterator.
 func (i *edgeIterator) Edge() *domain.Edge {
 	// The edge pointer contents may be overwritten by a graph update; to
 	// avoid data-races we acquire the read lock first and clone the edge
