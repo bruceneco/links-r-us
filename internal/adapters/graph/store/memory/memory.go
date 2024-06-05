@@ -1,13 +1,13 @@
 package memory
 
 import (
+	"fmt"
 	"github.com/bruceneco/links-r-us/internal/application/core/domain"
 	"github.com/bruceneco/links-r-us/internal/ports"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
-	"golang.org/x/xerrors"
 )
 
 // edgeList contains the slice of edge UUIDs that originate from a link in the graph.
@@ -74,7 +74,7 @@ func (s *InMemoryGraph) FindLink(id uuid.UUID) (*domain.Link, error) {
 
 	link := s.links[id]
 	if link == nil {
-		return nil, xerrors.Errorf("find link: %w", ports.GraphErrNotFound)
+		return nil, fmt.Errorf("find link: %w", ports.GraphErrNotFound)
 	}
 
 	lCopy := new(domain.Link)
@@ -109,7 +109,7 @@ func (s *InMemoryGraph) UpsertEdge(edge *domain.Edge) error {
 	_, srcExists := s.links[edge.Src]
 	_, dstExists := s.links[edge.Dst]
 	if !srcExists || !dstExists {
-		return xerrors.Errorf("upsert edge: %w", ports.GraphErrUnknownEdgeLinks)
+		return fmt.Errorf("upsert edge: %w", ports.GraphErrUnknownEdgeLinks)
 	}
 
 	// Scan edge list from source
