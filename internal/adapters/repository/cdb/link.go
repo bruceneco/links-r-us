@@ -8,7 +8,6 @@ import (
 	"github.com/bruceneco/links-r-us/internal/ports"
 	repoPorts "github.com/bruceneco/links-r-us/internal/ports/repository"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 )
 
 type LinkRepository struct {
@@ -30,7 +29,7 @@ var upsertLinkQuery = `
 func (l *LinkRepository) Upsert(link *domain.Link) error {
 	row := l.db.QueryRow(upsertLinkQuery, link.URL, link.RetrievedAt.UTC())
 	if err := row.Scan(&link.ID, &link.RetrievedAt); err != nil {
-		return errors.Errorf("upsert link: %w", err)
+		return fmt.Errorf("upsert link: %w", err)
 	}
 	link.RetrievedAt = link.RetrievedAt.UTC()
 	return nil
