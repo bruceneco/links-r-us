@@ -8,6 +8,7 @@ import (
 	"github.com/bruceneco/links-r-us/internal/ports"
 	repoPorts "github.com/bruceneco/links-r-us/internal/ports/repository"
 	"github.com/google/uuid"
+	"time"
 )
 
 type LinkRepository struct {
@@ -26,8 +27,8 @@ var upsertLinkQuery = `
 	RETURNING id, retrieved_at
 `
 
-func (l *LinkRepository) Upsert(link *domain.Link) error {
-	row := l.db.QueryRow(upsertLinkQuery, link.URL, link.RetrievedAt.UTC())
+func (r *LinkRepository) Upsert(link *domain.Link) error {
+	row := r.db.QueryRow(upsertLinkQuery, link.URL, link.RetrievedAt.UTC())
 	if err := row.Scan(&link.ID, &link.RetrievedAt); err != nil {
 		return fmt.Errorf("upsert link: %w", err)
 	}
@@ -39,8 +40,8 @@ var findLinkQuery = `
 	SELECT url, retrieved_at FROM links WHERE id=$1
 `
 
-func (l *LinkRepository) Find(id uuid.UUID) (*domain.Link, error) {
-	row := l.db.QueryRow(findLinkQuery, id)
+func (r *LinkRepository) Find(id uuid.UUID) (*domain.Link, error) {
+	row := r.db.QueryRow(findLinkQuery, id)
 	link := &domain.Link{ID: id}
 	if err := row.Scan(&link.URL, &link.RetrievedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -50,4 +51,16 @@ func (l *LinkRepository) Find(id uuid.UUID) (*domain.Link, error) {
 	}
 	link.RetrievedAt = link.RetrievedAt.UTC()
 	return link, nil
+}
+
+var linksInPartitionQuery = `
+	SELECT id, url, retrieved_at FROM links WHERE id >= $1 AND id <= $2 AND retrieved_at < $3
+`
+
+func (r *LinkRepository) Links(fromId uuid.UUID, toId uuid.UUID, accessedBefore time.Time) (ports.LinkIterator, error) {
+	rows, err := r.db.Query(linksInPartitionQuery, fromId, toId, accessedBefore.UTC())
+	if err != nil {
+		return nil, fmt.Errorf("links: %w", err)
+	}
+	return newLinkIterator(rows), nil
 }
