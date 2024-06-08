@@ -1,4 +1,5 @@
 
+name: links-r-us
 services:
   cockroachdb:
     image: cockroachdb/cockroach:latest
@@ -9,6 +10,34 @@ services:
       - cockroach-data:/cockroach/cockroach-data
     command: start-single-node --insecure
 
+  test-cockroachdb:
+    image: cockroachdb/cockroach:latest
+    command: start-single-node --insecure
+    volumes:
+      - ./.docker/init-cockroach.sh:/docker-entrypoint-initdb.d/init-cockroach.sh
+    networks:
+      - test-network
+    healthcheck:
+      test: [ "CMD", "cockroach", "node", "status", "--insecure", "--host=test-cockroachdb:26257" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+  test:
+    build:
+      dockerfile: Dockerfile
+      target: tester
+    env_file: configs/.docker-test.env
+    depends_on:
+      test-cockroachdb:
+        condition: service_healthy
+    networks:
+      - test-network
+
 volumes:
+  test-cockroach-data:
+    name: links-r-us-test-cockroach-data
   cockroach-data:
     name: links-r-us-cockroach-data
+networks:
+  test-network:
