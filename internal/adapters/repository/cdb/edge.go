@@ -65,3 +65,15 @@ func (r *EdgeRepository) Edges(fromID, toID uuid.UUID, updatedBefore time.Time) 
 	}
 	return newEdgeIterator(rows), nil
 }
+
+var removeStaleEdgesQuery = `
+	DELETE FROM EDGES WHERE src=$1 AND updated_at < $2
+`
+
+func (r *EdgeRepository) RemoveStaleEdges(fromID uuid.UUID, updatedBefore time.Time) error {
+	_, err := r.db.Exec(removeStaleEdgesQuery, fromID, updatedBefore.UTC())
+	if err != nil {
+		return fmt.Errorf("remove stale edges: %w", err)
+	}
+	return nil
+}

@@ -10,4 +10,5 @@ import (
 type EdgeRepository interface {
 	Upsert(edge *domain.Edge) error
 	Edges(fromID, toID uuid.UUID, updatedBefore time.Time) (ports.EdgeIterator, error)
+	RemoveStaleEdges(fromID uuid.UUID, updatedBefore time.Time) error
 }
