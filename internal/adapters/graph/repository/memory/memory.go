@@ -3,7 +3,7 @@ package memory
 import (
 	"fmt"
 	"github.com/bruceneco/links-r-us/internal/application/core/domain"
-	"github.com/bruceneco/links-r-us/internal/ports"
+	"github.com/bruceneco/links-r-us/internal/ports/repository"
 	"sync"
 	"time"
 
@@ -26,7 +26,7 @@ type InMemoryGraph struct {
 }
 
 // NewInMemoryGraph creates a new in-memory link graph.
-func NewInMemoryGraph() ports.Graph {
+func NewInMemoryGraph() repository.GraphRepository {
 	return &InMemoryGraph{
 		links:        make(map[uuid.UUID]*domain.Link),
 		edges:        make(map[uuid.UUID]*domain.Edge),
@@ -74,7 +74,7 @@ func (s *InMemoryGraph) FindLink(id uuid.UUID) (*domain.Link, error) {
 
 	link := s.links[id]
 	if link == nil {
-		return nil, fmt.Errorf("find link: %w", ports.GraphErrNotFound)
+		return nil, fmt.Errorf("find link: %w", repository.GraphErrNotFound)
 	}
 
 	lCopy := new(domain.Link)
@@ -84,7 +84,7 @@ func (s *InMemoryGraph) FindLink(id uuid.UUID) (*domain.Link, error) {
 
 // Links returns an iterator for the set of links whose IDs belong to the
 // [fromID, toID) range and were retrieved before the provided timestamp.
-func (s *InMemoryGraph) Links(fromID, toID uuid.UUID, retrievedBefore time.Time) (ports.LinkIterator, error) {
+func (s *InMemoryGraph) Links(fromID, toID uuid.UUID, retrievedBefore time.Time) (repository.LinkIterator, error) {
 	from, to := fromID.String(), toID.String()
 
 	s.mu.RLock()
@@ -109,7 +109,7 @@ func (s *InMemoryGraph) UpsertEdge(edge *domain.Edge) error {
 	_, srcExists := s.links[edge.Src]
 	_, dstExists := s.links[edge.Dst]
 	if !srcExists || !dstExists {
-		return fmt.Errorf("upsert edge: %w", ports.GraphErrUnknownEdgeLinks)
+		return fmt.Errorf("upsert edge: %w", repository.GraphErrUnknownEdgeLinks)
 	}
 
 	// Scan edge list from source
@@ -144,7 +144,7 @@ func (s *InMemoryGraph) UpsertEdge(edge *domain.Edge) error {
 // Edges returns an iterator for the set of edges whose source vertex IDs
 // belong to the [fromID, toID) range and were updated before the provided
 // timestamp.
-func (s *InMemoryGraph) Edges(fromID, toID uuid.UUID, updatedBefore time.Time) (ports.EdgeIterator, error) {
+func (s *InMemoryGraph) Edges(fromID, toID uuid.UUID, updatedBefore time.Time) (repository.EdgeIterator, error) {
 	from, to := fromID.String(), toID.String()
 
 	s.mu.RLock()
