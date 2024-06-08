@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/bruceneco/links-r-us/internal/application/core/domain"
-	"github.com/bruceneco/links-r-us/internal/ports"
+	"github.com/bruceneco/links-r-us/internal/ports/repository"
 )
 
 type linkIterator struct {
@@ -13,7 +13,7 @@ type linkIterator struct {
 	latchedLink *domain.Link
 }
 
-func newLinkIterator(rows *sql.Rows) ports.LinkIterator {
+func newLinkIterator(rows *sql.Rows) repository.LinkIterator {
 	return &linkIterator{rows: rows}
 }
 

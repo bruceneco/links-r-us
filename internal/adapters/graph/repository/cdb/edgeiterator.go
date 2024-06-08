@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/bruceneco/links-r-us/internal/application/core/domain"
-	"github.com/bruceneco/links-r-us/internal/ports"
+	"github.com/bruceneco/links-r-us/internal/ports/repository"
 )
 
 type edgeIterator struct {
@@ -13,7 +13,7 @@ type edgeIterator struct {
 	latchedEdge *domain.Edge
 }
 
-func newEdgeIterator(rows *sql.Rows) ports.EdgeIterator {
+func newEdgeIterator(rows *sql.Rows) repository.EdgeIterator {
 	return &edgeIterator{rows: rows}
 }
 
