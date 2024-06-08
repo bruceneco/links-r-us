@@ -1,20 +1,50 @@
-package ports
+package repository
 
 import (
 	"github.com/bruceneco/links-r-us/internal/application/core/domain"
-	"github.com/bruceneco/links-r-us/internal/ports"
 	"github.com/google/uuid"
+	"golang.org/x/xerrors"
 	"time"
 )
 
-type LinkRepository interface {
-	Upsert(link *domain.Link) error
-	Find(id uuid.UUID) (*domain.Link, error)
-	Links(fromId, toId uuid.UUID, accessedBefore time.Time) (ports.LinkIterator, error)
+// GraphRepository is the port to manage the relation between many domain.Link and their domain.Edge.
+type GraphRepository interface {
+	// UpsertLink updates an existing entry or insert it if it does not exist.
+	UpsertLink(link *domain.Link) error
+	// FindLink retrieves a domain.Link using its uuid.
+	FindLink(id uuid.UUID) (*domain.Link, error)
+
+	// UpsertEdge updates an existing Edge or insert it if it does not exist.
+	UpsertEdge(edge *domain.Edge) error
+	// RemoveStaleEdges deletes domain.Edge based on its uuid and the last update.
+	RemoveStaleEdges(fromID uuid.UUID, updatedBefore time.Time) error
+
+	// Links retrieves a list of domain.Link from an uuid to another uuid based on their retrieved datetime.
+	Links(fromID, toID uuid.UUID, retrievedBefore time.Time) (LinkIterator, error)
+	// Edges retrieves a list of domain.Edge from an uuid to another uuid based on their update datetime.
+	Edges(fromID, toID uuid.UUID, updatedBefore time.Time) (EdgeIterator, error)
 }
 
-type EdgeRepository interface {
-	Upsert(edge *domain.Edge) error
-	Edges(fromID, toID uuid.UUID, updatedBefore time.Time) (ports.EdgeIterator, error)
-	RemoveStaleEdges(fromID uuid.UUID, updatedBefore time.Time) error
+// LinkIterator is implemented by structs that can iterate a list of domain.Link from graph.
+type LinkIterator interface {
+	Iterator
+
+	// Link returns the currently fetched domain.Link struct.
+	Link() *domain.Link
 }
+
+// EdgeIterator is implemented by structs that can iterate a list of domain.Edge from graph.
+type EdgeIterator interface {
+	Iterator
+	// Edge returns the currently fetched domain.Edge struct.
+	Edge() *domain.Edge
+}
+
+var (
+	// GraphErrNotFound is returned when a link or edge lookup fails.
+	GraphErrNotFound = xerrors.New("not found")
+
+	// GraphErrUnknownEdgeLinks is returned when attempting to create an edge
+	// with an invalid source and/or destination ID
+	GraphErrUnknownEdgeLinks = xerrors.New("unknown source and/or destination for edge")
+)

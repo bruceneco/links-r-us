@@ -1,4 +1,4 @@
-package ports
+package repository
 
 // Iterator is a contract to pass along a set of items orchestrating its progress.
 type Iterator interface {
