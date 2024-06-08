@@ -3,7 +3,7 @@ include configs/.env
 lint:
 	golangci-lint run --issues-exit-code=0
 
-MIGRATIONS_LOCALE="internal/adapters/repository/cdb/migrations"
+MIGRATIONS_LOCALE="internal/adapters/graph/repository/cdb/migrations"
 migration-up: migrate-check-deps check-cdb-env
 	migrate -path ${MIGRATIONS_LOCALE} -database ${CDB_DSN} up
 
