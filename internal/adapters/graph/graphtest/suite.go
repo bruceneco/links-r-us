@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bruceneco/links-r-us/internal/application/core/domain"
-	"github.com/bruceneco/links-r-us/internal/ports"
+	"github.com/bruceneco/links-r-us/internal/ports/repository"
 	"github.com/stretchr/testify/assert"
 	"math/big"
 	"reflect"
@@ -17,13 +17,13 @@ import (
 )
 
 // SuiteBase defines a re-usable set of graph-related tests that can
-// be executed against any type that implements ports.Graph.
+// be executed against any type that implements ports.GraphRepository.
 type SuiteBase struct {
-	g ports.Graph
+	g repository.GraphRepository
 }
 
 // SetGraph configures the test-suite to run all tests against g.
-func (s *SuiteBase) SetGraph(g ports.Graph) {
+func (s *SuiteBase) SetGraph(g repository.GraphRepository) {
 	s.g = g
 }
 
@@ -98,7 +98,7 @@ func (s *SuiteBase) TestFindLink(t *testing.T) {
 
 	// Lookup link by unknown ID
 	_, err = s.g.FindLink(uuid.Nil)
-	assert.True(t, errors.Is(err, ports.GraphErrNotFound))
+	assert.True(t, errors.Is(err, repository.GraphErrNotFound))
 }
 
 // TestConcurrentLinkIterators verifies that multiple clients can concurrently
@@ -262,7 +262,7 @@ func (s *SuiteBase) TestUpsertEdge(t *testing.T) {
 		Dst: uuid.New(),
 	}
 	err = s.g.UpsertEdge(bogus)
-	assert.True(t, errors.Is(err, ports.GraphErrUnknownEdgeLinks))
+	assert.True(t, errors.Is(err, repository.GraphErrUnknownEdgeLinks))
 }
 
 // TestConcurrentEdgeIterators verifies that multiple clients can concurrently
@@ -477,12 +477,12 @@ func (s *SuiteBase) TestRemoveStaleEdges(t *testing.T) {
 	assert.Equal(t, numEdges, seen)
 }
 
-func (s *SuiteBase) partitionedLinkIterator(t *testing.T, partition, numPartitions int, accessedBefore time.Time) (ports.LinkIterator, error) {
+func (s *SuiteBase) partitionedLinkIterator(t *testing.T, partition, numPartitions int, accessedBefore time.Time) (repository.LinkIterator, error) {
 	from, to := s.partitionRange(t, partition, numPartitions)
 	return s.g.Links(from, to, accessedBefore)
 }
 
-func (s *SuiteBase) partitionedEdgeIterator(t *testing.T, partition, numPartitions int, updatedBefore time.Time) (ports.EdgeIterator, error) {
+func (s *SuiteBase) partitionedEdgeIterator(t *testing.T, partition, numPartitions int, updatedBefore time.Time) (repository.EdgeIterator, error) {
 	from, to := s.partitionRange(t, partition, numPartitions)
 	return s.g.Edges(from, to, updatedBefore)
 }
